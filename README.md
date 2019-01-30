@@ -4,28 +4,19 @@ Running nextcloud via docker. To be ansiblized eventually.
 
 1) Run bootstrap and setup an ssh alias in ~/.ssh/config for `friendo-cloud`
 
-2) Install docker: `make install-docker`
+2) Install docker: `make docker`
 
-3) Download docker images: `make download-docker-images`
+3) Setup firewall: `make ufw`
 
-4) Setup firewall: `make ufw`
+4) Setup nextcloud `make nextcloud`
 
-5) Setup docker nextcloud `make setup-nextcloud`
+5) Go to cloud.solidarity.camp (or your favorite nextcloud url) and finish setup
 
-6) Go to cloud.solidarity.camp and finish setup
-
-7) Add cloud.solidarity.camp to trusted domain by editing some wacky file:
-
-``` sh
-sudo nano /var/lib/docker/volumes/nextcloud_nextcloud/_data/config/config.php
-```
-
-^^^ yup, we should figure out a better way
-
+6) Configure onlyoffice: `make onlyoffice`
 
 ## Notes
 
-I tried this to setup encryption but it failed due to permission errors.
+I (@ziggy) tried this to setup encryption but it failed due to permission errors.
 
 a docker + apache + encfs + eclipis clusterfuck.
 
