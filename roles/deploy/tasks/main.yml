@@ -1,0 +1,36 @@
+---
+- name: Install Docker
+  apt:
+    cache_valid_time: 3600
+    name:
+      - docker
+
+- name: Install Docker-Compose
+  become: true
+  become_user: root
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.23.2/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: +x
+
+- name: Create NextCloud directory
+  become: true
+  become_user: root
+  file:
+    path: /nextcloud
+    state: directory
+    mode: 0755
+
+- name: Load docker-compose.yml, nginx.conf, onlyoffice config script
+  become: true
+  become_user: root
+  copy:
+    src: files
+    dest: /nextcloud/conf
+    mode: 0755
+
+- name: Run docker-compose up
+  become: true
+  become_user: root
+  shell: docker-compose -f /nextcloud/conf/docker-compose.yml up
+...

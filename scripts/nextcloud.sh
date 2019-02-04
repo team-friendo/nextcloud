@@ -5,7 +5,7 @@
 # sudo mkdir -p /etc/caddy/.caddy
 
 # cat << EOF | sudo tee /etc/caddy/Caddyfile
-# localhost {
+# cloud.solidarity.camp {
 #   tls team-friendo@riseup.net
 #   proxy / http://nextcloud:80 {
 #     transparent
