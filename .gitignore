@@ -3,3 +3,6 @@
 /keyrings/live/secring.gpg
 /.env
 inventory
+/inventory.tmpl
+/ips
+*.retry
