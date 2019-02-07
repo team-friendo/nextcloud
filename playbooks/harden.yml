@@ -1,0 +1,7 @@
+---
+  - name: Perform Advanced Hardening
+    hosts: nextcloud
+    tasks:
+      - name: Run dev-sec os-hardening role
+        import_role:
+          name: dev-sec.os-hardening

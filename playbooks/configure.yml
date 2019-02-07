@@ -1,0 +1,19 @@
+---
+  - name: Configure Nextcloud (set admin user network/db settings)
+    become: true
+    hosts: nextcloud
+    environment:
+      MYSQL_PASSWORD: "{{ lookup('env','MYSQL_PASSWORD') }}"
+      ADMIN_USERNAME: "{{ lookup('env','ADMIN_USERNAME') }}"
+      ADMIN_PASSWORD: "{{ lookup('env','ADMIN_PASSWORD') }}"
+    tasks:
+
+      - name: Load config script
+        copy:
+          src: "files/configure.sh"
+          dest: /nextcloud/
+          mode: 0755
+        tags: load_files
+
+      # - name: Run config script
+      #   shell: /nextcloud/configure.sh

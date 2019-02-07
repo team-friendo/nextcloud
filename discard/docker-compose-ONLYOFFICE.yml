@@ -15,6 +15,7 @@ services:
       - onlyoffice
     volumes:
       - app_data:/var/www/html
+
   onlyoffice-document-server:
     container_name: onlyoffice-document-server
     image: onlyoffice/documentserver:latest

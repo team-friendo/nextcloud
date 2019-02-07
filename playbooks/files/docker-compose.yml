@@ -1,0 +1,113 @@
+version: '3'
+
+services:
+
+  db:
+    image: mariadb
+    container_name: nextcloud-db
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    ports:
+      - 3306:3306
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    restart: unless-stopped
+
+  app:
+    image: nextcloud:fpm-alpine
+    container_name: nextcloud-app
+    networks:
+      - proxy-tier
+      - default
+    expose:
+      - '80'
+      - '9000'
+    volumes:
+      - nextcloud:/var/www/html
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  web:
+    image: nginx:alpine
+    container_name: nextcloud-web
+    volumes:
+      - nextcloud:/var/www/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    environment:
+      - VIRTUAL_HOST=${HOSTNAME}
+      - LETSENCRYPT_HOST=${HOSTNAME}
+      - LETSENCRYPT_EMAIL=${NEXTCLOUD_ADMIN_EMAIL}
+    depends_on:
+      - app
+    networks:
+      - proxy-tier
+      - default
+    restart: unless-stopped
+
+  onlyoffice-document-server:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice-document-server
+    networks:
+      - proxy-tier
+      - default
+    expose:
+      - '80'
+      - '443'
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_log:/var/log/onlyoffice
+    restart: unless-stopped
+
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: nextcloud-proxy
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - ./uploadsize.conf:/etc/nginx/conf.d/uploadsize.conf
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - proxy-tier
+    restart: unless-stopped
+
+  letsencrypt-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt-companion
+    restart: unless-stopped
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy-tier
+    depends_on:
+      - proxy
+
+volumes:
+  db:
+  nextcloud:
+  certs:
+  vhost.d:
+  html:
+  onlyoffice_data:
+  onlyoffice_log:
+
+networks:
+  proxy-tier:

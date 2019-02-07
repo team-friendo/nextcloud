@@ -1,6 +1,0 @@
----
-- name: deploy the app
-  hosts: nextcloud
-  # vars:
-  role: roles/deploy
-...

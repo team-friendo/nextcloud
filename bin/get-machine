@@ -1,10 +1,10 @@
 #! /usr/bin/env bash
 
-echo "checking environment..."
+pushd `pwd` # store current dir
+cd `dirname "$0"` # cd to script path
+cd ..
 
-set -o allexport
-source .env
-set +o allexport
+echo "checking environment..."
 
 REGION="${REGION:-ams1}" # "ams1" | "mia1" | "hon1"
 MEMORY="${MEMORY:-2048}" # 1024 | 2048 | 4096 | 8192
@@ -77,11 +77,11 @@ check_until_running
 echo "creating inventory file..."
 
 cat << EOF > ./inventory
-bootstrap:
+nextcloud:
   hosts:
     ${ip_address}
   vars:
-    ansible_user: root
+    ansible_user: ${USER}
     ansible_ssh_private_key_file: ${SSH_KEY_PATH}
     ansible_ssh_common_args: '-o IdentitiesOnly=yes'
 EOF
@@ -89,3 +89,5 @@ EOF
 echo ":):):):):):):):)"
 echo ":)   DONE!    :)"
 echo ":):):):):):):):)"
+
+pushd
