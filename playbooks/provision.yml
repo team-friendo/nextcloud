@@ -94,13 +94,6 @@
         line: '%sudo ALL=(ALL) NOPASSWD: ALL'
         validate: visudo -cf %s
 
-  - name: unlock users
-    become: yes
-    command: "usermod -p '*' {{ item.name }}"
-    ignore_errors: True
-    changed_when: False
-    loop: "{{ users }}"
-
   #############
   # HARDENING #
   #############
@@ -113,6 +106,12 @@
     vars:
       ssh_allow_groups: sshusers
 
+  - name: unlock users
+    become: yes
+    command: "usermod -p '*' {{ item.name }}"
+    ignore_errors: True
+    changed_when: False
+    loop: "{{ users }}"
 
   # firewall
 
