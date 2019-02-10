@@ -11,7 +11,7 @@ $ sudo apt-add-repository --yes --update ppa:ansible/ansible
 $ sudo apt-get install ansible
 ```
 
-# Team Friendo Usage
+# Usage for Team Friendo
 
 **(1) Unlock and export secrets:**
 
@@ -19,23 +19,25 @@ $ sudo apt-get install ansible
 $ ./bin/load-secrets
 ```
 
-Note: assumes you have [blackbox](https://github.com/StackExchange/blackbox) installed.
+**Note:** assumes you have [blackbox](https://github.com/StackExchange/blackbox) installed.
 
 **(2) Get a machine:**
 
 ``` shell
 $ ./bin/get-machine
 ```
-Note: this will create an eclipsis droplet and write an inventory file to project root that includes the droplet's iIP. You can futz with default values in `get-machine` if you want different stuff.
+
+**Note:** this will create an eclipsis droplet and write an inventory file to project root that includes the droplet's iIP. You can futz with default values in `get-machine` if you want different stuff.
 
 **(3) Provision the machine and deploy nextcloud on it:**
 
 ``` shell
 $ ansible-playbook -i inventory playbooks/main.yml
 ```
-Note: the hardening step takes roughly 2 hours. It's last! You can do other stuff while it's running!
 
-# Friendos Once Removed Usage
+**Note**: the hardening step takes roughly 2 hours. It's last! You can do other stuff while it's running!
+
+# Usage for Friendos-of-Friendos
 
 The above assumes that you are on the team that made this repo. But maybe you are not and still would like to use this code. YAAAYYY! We want that! Here's how...
 

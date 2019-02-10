@@ -58,14 +58,14 @@ EOF
     echo "droplet status: $status..."
     check_until_running
   else
-    ip_address=$(bash <<EOF
+    host_ip=$(bash <<EOF
       curl -X GET \
         --header "Accept: application/json" \
         --header "authorization: $ECLIPSIS_API_KEY" \
         "https://portal.eclips.is/portal/api/v2/droplets/$droplet_id" | jq '.droplet.networks.v4 | .[0] | .ip_address'
 EOF
 )
-    echo "droplet running on ip address: $ip_address!"
+    echo "droplet running on ip address: $host_ip!"
     sleep 1
   fi
 }
@@ -76,15 +76,12 @@ check_until_running
 
 echo "creating inventory file..."
 
-cat << EOF > ./inventory
-nextcloud:
-  hosts:
-    ${ip_address}
-  vars:
-    ansible_user: ${USER}
-    ansible_ssh_private_key_file: ${SSH_KEY_PATH}
-    ansible_ssh_common_args: '-o IdentitiesOnly=yes'
-EOF
+cp ./inventory.tmpl ./inventory
+sed -i \
+    -e "s|%HOST_IP%|$host_ip|" \
+    -e "s|%USER%|$USER|" \
+    -e "s|%SSH_KEY_PATH%|$SSH_KEY_PATH|" \
+    ./inventory
 
 echo ":):):):):):):):)"
 echo ":)   DONE!    :)"

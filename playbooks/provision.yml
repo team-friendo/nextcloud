@@ -3,18 +3,6 @@
   become: true
   hosts: nextcloud
 
-  vars:
-    users:
-      -
-        name: zy
-        ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA8THz/P9DiCRW9weBnv2ftfzu/c2xulHhK4OAYNiBQw ft@d"
-      -
-        name: aguestuser
-        ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAlyvE6t1XLt8zlI+5lSyxkxpSn/BbYkRsj+p+EVQ+Vx aguestuser@tikva"
-      -
-        name: fdbk
-        ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCcayEK2J916La5ZHbfPuTnbrBqNFmGi0NspfKA5S0ecGX14Kc4h4eXyaJsbmWswOMevdVdIo/J0g0xZWOBJpgpQdA+Z5NtWVXM2bxJgGwSoXj3MUgwlv/uqRH1sI330ud7IzYtCjbvD6tQ6fXgnjkPtEyR1oMyGqwMUxymOkQMvNNnhg8BpxvBonpUfaX4kUtRN3VfxB/96tXQbZrYtR6tq0YZgwJ9JNe1rKH4eQC6cokEh+8GA3iHJ2y72etnqgsAnO46sK+PgVdi9En9QPJtMUhsG84EhN/lcsI+4IFff8+OVHaWWazssUkeDy2HYF0h5JE97KQxWu9EslnNvWF7jfo+Q+EbG1Qx/PV3v58OA5zTL7J7iW5yS3+zmDcLh//o17LTCOrKXxCV5cHKjl7uKI6ZT5Dk1xcHOIZ0aORvuW0L9frr9NrEUTzF3LME0fb9LENEhQBWzPyFGPXKNWZz9ykGVssHtD1efLanlh/VLfkIGDd58PLOlZN2STRvU4sjoZJDNXvYjXqsqRo/0aAu+NqzklPxwpV42giE3E8QhiGtnnHujQl1FQTA5ThYugztcJPm4vRiFjrOOhpHcFiNaZqOqZKMo23P8Th6bpSEA/IO2spooXOPH8BdCcYDZSrhTCa+luSh4MlBJHVcehfFQSUUsW25EuKzEh4EMTEgAw== fdbk@riseup.net"
-
   handlers:
     - name: restart fail2ban
       service: name=fail2ban state=restarted
@@ -60,16 +48,16 @@
         - emacs-nox
     tags: packages
 
-  #########
-  # USERS #
-  #########
+  ##########
+  # ADMINS #
+  ##########
 
   - name: Make sure we have a sshusers groups
     group:
       name: sshusers
       state: present
 
-  - name: Add users
+  - name: Add admin users
     user:
       name: "{{ item.name }}"
       groups:
@@ -77,14 +65,14 @@
         - sshusers
       append: yes
       shell: /bin/bash
-    with_items: "{{ users }}"
+    with_items: "{{ admins }}"
 
   - name: Set authorized keys
     authorized_key:
       user: "{{ item.name }}"
       state: present
       key: "{{ item.ssh_key }}"
-    with_items: "{{ users }}"
+    with_items: "{{ admins }}"
 
   - name: Allow sudo group to have passwordless sudo
     lineinfile:
@@ -106,12 +94,12 @@
     vars:
       ssh_allow_groups: sshusers
 
-  - name: unlock users
+  - name: unlock admin users
     become: yes
     command: "usermod -p '*' {{ item.name }}"
     ignore_errors: True
     changed_when: False
-    loop: "{{ users }}"
+    loop: "{{ admins }}"
 
   # firewall
 
@@ -145,7 +133,7 @@
   - name: Copy fail2ban configuration into place
     become: true
     copy:
-      src: "{{ playbook_dir }}/files/jail.local"
+      src: "files/jail.local"
       dest: /etc/fail2ban/jail.local
     notify: restart fail2ban
 
