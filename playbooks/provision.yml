@@ -3,6 +3,9 @@
   become: true
   hosts: nextcloud
 
+  vars:
+    ansible_user: root
+
   handlers:
     - name: restart fail2ban
       service: name=fail2ban state=restarted
