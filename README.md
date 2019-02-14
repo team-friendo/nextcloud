@@ -4,11 +4,10 @@ This repo contains the devops dust necessary to provision and deploy a nextcloud
 
 # Dependencies
 
-You need ansible and ansible playbook:
+To use this repo, you must install ansible and the roles that our playbooks depend on:
 
 ``` shell
-$ sudo apt-add-repository --yes --update ppa:ansible/ansible
-$ sudo apt-get install ansible
+$ sudo ./bin/install-ansible
 ```
 
 # Usage for Team Friendo
@@ -16,7 +15,8 @@ $ sudo apt-get install ansible
 **(1) Unlock and export secrets:**
 
 ``` shell
-$ ./bin/load-secrets
+$ blackbox_decrypt_all_files
+$ set -a && source .env && set +a
 ```
 
 **Note:** assumes you have [blackbox](https://github.com/StackExchange/blackbox) installed.
@@ -28,6 +28,18 @@ $ ./bin/get-machine
 ```
 
 **Note:** this will create an eclipsis droplet and write an inventory file to project root that includes the droplet's iIP. You can futz with default values in `get-machine` if you want different stuff.
+
+You will need to have the following env vars defined for the script to execute:
+
+* `HOST_URL` (the url where you want to deploy nextcloud)
+* `SSH_KEY_PATH` (the path to the ssh private key you want to use on this box)
+* `SSH_KEY_ID` (the id that has been assigned to your ssh key on eclipsis)
+
+(Leaving any of them blank will prompt you with instructions**
+
+**(2a) Configure DNS**
+
+Take the IP address that `get-machine` just generated and create and A record pointing the `HOST_URL` to it!
 
 **(3) Provision the machine and deploy nextcloud on it:**
 
@@ -43,7 +55,7 @@ The above assumes that you are on the team that made this repo. But maybe you ar
 
 **(1) Provide some secrets:**
 
-You will need a file called `.env` located in the root directory of this repo that looks like the sample provided in `.env.example`, only with the values inside the {{ TEMPLATE STRINGS }} filled in with real values. Your values! (This file should be gitignored.)
+You will need a file called `.env` located in the `files` directory of this repo that looks like the sample provided in `/files/.env.example`, only with the values inside the {{ TEMPLATE STRINGS }} filled in with real values. Your values! (This file should be gitignored.)
 
 Now load the secrets into your environment with:
 
