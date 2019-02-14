@@ -128,6 +128,20 @@
     notify: reload ufw
     tags: ufw
 
+  - name: allow http
+    ufw:
+      rule: allow
+      port: http
+    notify: reload ufw
+    tags: ufw
+
+  - name: allow https
+    ufw:
+      rule: allow
+      port: https
+    notify: reload ufw
+    tags: ufw
+
   # fail2ban
 
   - name: Copy fail2ban configuration into place
