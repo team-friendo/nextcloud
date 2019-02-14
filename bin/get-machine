@@ -32,7 +32,7 @@ droplet_id=$(bash <<EOF
     --header "Accept: application/json" \
     --header "authorization: $ECLIPSIS_API_KEY" \
     --data "{ \
-      \"name\": \"$DROPLET_NAME\", \
+      \"name\": \"$HOST_URL\", \
       \"region\": \"$REGION\", \
       \"size\": $MEMORY, \
       \"disk\": $DISK, \
@@ -82,6 +82,13 @@ sed -i \
     -e "s|%USER%|$USER|" \
     -e "s|%SSH_KEY_PATH%|$SSH_KEY_PATH|" \
     ./inventory
+
+echo "creating .env file..."
+
+cp ./files/.env.tmpl ./files/.env
+sed -i \
+    -e "s|%HOST_IP%|$host_ip|" \
+    ./.env
 
 echo ":):):):):):):):)"
 echo ":)   DONE!    :)"
