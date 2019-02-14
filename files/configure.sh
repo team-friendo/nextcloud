@@ -2,6 +2,14 @@
 
 set -x
 
+# soruce env vars
+set -a
+source .env
+set +a
+
+# bail with error nif env vars undefined
+set -eu
+
 echo "--- creating nextcloud admin user and database"
 
 docker exec -u www-data nextcloud-app php occ --no-warnings \
@@ -42,7 +50,7 @@ append_trusted_host(){
   rm trusted_domain.tmp
 }
 
-append_trusted_host ${HOSTNAME}
+append_trusted_host ${NEXTCLOUD_HOSTNAME}
 append_trusted_host nextcloud-web
 
 echo "--- configuring onlyoffice"

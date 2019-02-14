@@ -2,10 +2,13 @@
   - name: Configure Nextcloud (set admin user network/db settings)
     become: true
     hosts: nextcloud
+
     environment:
       MYSQL_PASSWORD: "{{ lookup('env','MYSQL_PASSWORD') }}"
-      ADMIN_USERNAME: "{{ lookup('env','ADMIN_USERNAME') }}"
-      ADMIN_PASSWORD: "{{ lookup('env','ADMIN_PASSWORD') }}"
+      NEXTCLOUD_ADMIN_USER: "{{ lookup('env','NEXTCLOUD_ADMIN_USER') }}"
+      NEXTCLOUD_ADMIN_PASSWORD: "{{ lookup('env','NEXTCLOUD_ADMIN_PASSWORD') }}"
+      NEXTCLOUD_HOSTNAME: "{{ lookup('env','NEXTCLOUD_HOSTNAME') }}"
+
     tasks:
 
       - name: Load config script
@@ -15,5 +18,11 @@
           mode: 0755
         tags: load_files
 
-      # - name: Run config script
-      #   shell: /nextcloud/configure.sh
+      - name: Run config script
+        shell: /nextcloud/configure.sh
+        register: config_output
+        changed_when: false
+        failed_when: config_output.rc != 0
+        tags: passenger-validate
+
+      - debug: msg="{{ config_output.stdout_lines }}"
