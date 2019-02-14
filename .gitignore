@@ -6,5 +6,5 @@ inventory
 /ips
 /playbooks/*.retry
 *.retry
-/files/.env
 /files/.env.tmpl
+/files/.env

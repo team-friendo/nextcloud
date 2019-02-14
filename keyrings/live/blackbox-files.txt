@@ -1,4 +1,3 @@
-files/.env
 files/.env.tmpl
 inventory.tmpl
 ips
