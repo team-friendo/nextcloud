@@ -4,60 +4,35 @@
   hosts: nextcloud
 
   vars:
-    debian_version: stretch
-    architecture: x86_64
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
 
-  environment:
-    ADMIN_EMAIL: "{{ lookup('env','ADMIN_EMAIL') }}"
-    ADMIN_USERNAME: "{{ lookup('env','ADMIN_USERNAME') }}"
-    ADMIN_PASSWORD: "{{ lookup('env','ADMIN_PASSWORD') }}"
-    HOSTNAME: "{{ lookup('env','HOSTNAME') }}"
-    MYSQL_ROOT_PASSWORD: "{{ lookup('env','MYSQL_ROOT_PASSWORD') }}"
-    MYSQL_PASSWORD: "{{ lookup('env','MYSQL_PASSWORD') }}"
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+    # TODO: specify docker users
 
   tasks:
 
-  - name: Install system dependencies
-    apt:
-      cache_valid_time: 3600
-      name:
-        - apt-transport-https
-        - ca-certificates
-        - software-properties-common
+    - name: Load configuration files
+      copy:
+        src: "files/{{ item }}"
+        dest: /nextcloud/
+        mode: 0755
+      loop:
+        - docker-compose.yml
+        - nginx.conf
+        - uploadsize.conf
+        - .env
+      tags: load_files
 
-  - name: Install docker signing key
-    apt_key:
-      id: 0EBFCD88
-      url: https://download.docker.com/linux/debian/gpg
-      state: present
+    - name: Build and run dockerized nextcloud services
+      docker_service:
+        project_src: /nextcloud/
+        state: present
+      register: output
+      tags: run
 
-  - name: Add docker repository
-    apt_repository:
-      repo: deb [arch=amd64] https://download.docker.com/linux/debian stretch stable
-      state: present
-
-  - name: Install Docker
-    apt:
-      cache_valid_time: 3600
-      name:
-        - docker-ce
-
-  - name: Install Docker-Compose
-    get_url:
-      url: "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-Linux-{{ architecture }}"
-      dest: /usr/local/bin/docker-compose
-      mode: +x
-
-  - name: Load docker-compose.yml, nginx.conf
-    copy:
-      src: "files/{{ item }}"
-      dest: /nextcloud/
-      mode: 0755
-    loop:
-      - docker-compose.yml
-      - nginx.conf
-      - uploadsize.conf
-    tags: load_files
-
-  # - name: Build and run dockerized nextcloud services
-  #   shell: docker-compose -f /nextcloud/conf/docker-compose.yml up -d
+    - debug:
+        var: output
