@@ -7,3 +7,4 @@ inventory
 /playbooks/*.retry
 *.retry
 /files/.env
+/files/.env.tmpl
