@@ -55,12 +55,12 @@ The above assumes that you are on the team that made this repo. But maybe you ar
 
 **(1) Provide some secrets:**
 
-You will need a file called `.env` located in the `files` directory of this repo that looks like the sample provided in `/files/.env.example`, only with the values inside the {{ TEMPLATE STRINGS }} filled in with real values. Your values! (This file should be gitignored.)
+You will need a file called `.env` located in the `files` directory of this repo that looks like the sample provided in `/files/.env.example`, only with the values inside the {{ TEMPLATE STRINGS }} filled in with real values. Your values! (`file/s.env` is -- and should remain -- gitignored.)
 
 Now load the secrets into your environment with:
 
 ``` shell
-$ ./bin/load-secrets
+$ set -a && source files/.env && set +a
 ```
 
 **(2) Procure a server running debian:**
