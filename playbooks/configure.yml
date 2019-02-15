@@ -1,0 +1,32 @@
+---
+  - name: Configure Nextcloud (set admin user network/db settings)
+    become: true
+    hosts: nextcloud
+
+    tasks:
+
+      - name: Load scripts
+        copy:
+          src: "files/{{ item }}"
+          dest: /nextcloud/
+          mode: 0755
+        loop:
+          - ping-nextcloud.sh
+          - configure.sh
+        tags: load_files
+
+      - name: Ping nextcloud instance until it is available
+        shell: /nextcloud/ping-nextcloud.sh
+        register: ping_output
+        changed_when: false
+        failed_when: ping_output.rc != 0
+
+      - debug: msg="{{ ping_output.stdout_lines }}"
+
+      - name: Configure nextcloud (create admin account & database; install & configure onlyoffice)
+        shell: /nextcloud/configure.sh
+        register: config_output
+        changed_when: false
+        failed_when: config_output.rc != 0
+
+      - debug: msg="{{ config_output.stdout_lines }}"

@@ -1,0 +1,10 @@
+/keyrings/live/pubring.gpg~
+/keyrings/live/pubring.kbx~
+/keyrings/live/secring.gpg
+inventory
+/inventory.tmpl
+/ips
+/playbooks/*.retry
+*.retry
+/files/.env.tmpl
+/files/.env

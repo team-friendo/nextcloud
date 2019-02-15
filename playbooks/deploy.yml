@@ -1,0 +1,38 @@
+---
+- name: Deploy Nextcloud
+  become: true
+  hosts: nextcloud
+
+  vars:
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+
+  roles:
+    - geerlingguy.pip
+    - geerlingguy.docker
+    # TODO: specify docker users
+
+  tasks:
+
+    - name: Load configuration files
+      copy:
+        src: "files/{{ item }}"
+        dest: /nextcloud/
+        mode: 0755
+      loop:
+        - docker-compose.yml
+        - nginx.conf
+        - uploadsize.conf
+        - .env
+      tags: load_files
+
+    - name: Build and run dockerized nextcloud services
+      docker_service:
+        project_src: /nextcloud/
+        state: present
+      register: output
+      tags: run
+
+    - debug:
+        var: output
