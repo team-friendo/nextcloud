@@ -56,7 +56,7 @@ EOF
 )
   if [ ${status} != "\"running\"" ];then
     echo "droplet status: $status..."
-    sleep 1
+    sleep 4
     check_until_running
   else
     host_ip=$(bash <<EOF
@@ -93,8 +93,13 @@ sed -i \
     -e "s|%HOST_URL%|$HOST_URL|" \
     ./files/.env
 
-echo ":):):):):):):):)"
-echo ":)   DONE!    :)"
-echo ":):):):):):):):)"
+echo ":):):):):):):):):):):):):):):):):)"
+echo ":)             DONE!            :)"
+echo ":) be sure to point dns records :)"
+echo ":)              for             :)"
+echo ":)        $host_ip       :)"
+echo ":)              to              :)"
+echo ":)    $HOST_URL      :)"
+echo ":):):):):):):):):):):):):):):):):)"
 
 pushd
