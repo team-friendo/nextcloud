@@ -3,26 +3,30 @@
     become: true
     hosts: nextcloud
 
-    environment:
-      MYSQL_PASSWORD: "{{ lookup('env','MYSQL_PASSWORD') }}"
-      NEXTCLOUD_ADMIN_USER: "{{ lookup('env','NEXTCLOUD_ADMIN_USER') }}"
-      NEXTCLOUD_ADMIN_PASSWORD: "{{ lookup('env','NEXTCLOUD_ADMIN_PASSWORD') }}"
-      NEXTCLOUD_HOSTNAME: "{{ lookup('env','NEXTCLOUD_HOSTNAME') }}"
-
     tasks:
 
-      - name: Load config script
+      - name: Load scripts
         copy:
-          src: "files/configure.sh"
+          src: "files/{{ item }}"
           dest: /nextcloud/
           mode: 0755
+        loop:
+          - ping-nextcloud.sh
+          - configure.sh
         tags: load_files
 
-      - name: Run config script
+      - name: Ping nextcloud instance until it is available
+        shell: /nextcloud/ping-nextcloud.sh
+        register: ping_output
+        changed_when: false
+        failed_when: ping_output.rc != 0
+
+      - debug: msg="{{ ping_output.stdout_lines }}"
+
+      - name: Configure nextcloud (create admin account & database; install & configure onlyoffice)
         shell: /nextcloud/configure.sh
         register: config_output
         changed_when: false
         failed_when: config_output.rc != 0
-        tags: passenger-validate
 
       - debug: msg="{{ config_output.stdout_lines }}"
