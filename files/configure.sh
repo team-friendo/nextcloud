@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 
-set -x
+cd /nextcloud
 
-# soruce env vars
-set -a
+# source env vars, bail w/ error if env var undefined
 source .env
-set +a
-
-# bail with error nif env vars undefined
 set -eu
 
 echo "--- creating nextcloud admin user and database"

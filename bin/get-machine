@@ -4,7 +4,7 @@ pushd `pwd` # store current dir
 cd `dirname "$0"` # cd to script path
 cd ..
 
-echo "checking environment..."
+echo "--- checking environment..."
 
 REGION="${REGION:-ams1}" # "ams1" | "mia1" | "hon1"
 MEMORY="${MEMORY:-2048}" # 1024 | 2048 | 4096 | 8192
@@ -22,7 +22,7 @@ fi
 
 set -eu # abort with error message if env vars not defined
 
-echo "creating droplet..."
+echo "--- creating droplet..."
 echo "-- region: $REGION"
 echo "-- memory: $MEMORY gb"
 echo "-- disk:   $DISK gb"
@@ -43,7 +43,7 @@ droplet_id=$(bash <<EOF
 EOF
 )
 
-echo "created droplet with id: $droplet_id"
+echo "--- created droplet with id: $droplet_id"
 
 check_until_running(){
   echo "checking if droplet running..."
@@ -56,6 +56,7 @@ EOF
 )
   if [ ${status} != "\"running\"" ];then
     echo "droplet status: $status..."
+    sleep 1
     check_until_running
   else
     host_ip=$(bash <<EOF
@@ -65,17 +66,18 @@ EOF
         "https://portal.eclips.is/portal/api/v2/droplets/$droplet_id" | jq '.droplet.networks.v4 | .[0] | .ip_address'
 EOF
 )
-    echo "droplet running on ip address: $host_ip!"
+    echo "--- droplet running on ip address: $host_ip!"
     sleep 1
   fi
 }
 
-echo "waiting for machine to boot..."
+echo "--- waiting for machine to boot..."
 
 check_until_running
 
-echo "creating inventory file..."
+echo "--- creating inventory file..."
 
+touch ./inventory
 cp ./inventory.tmpl ./inventory
 sed -i \
     -e "s|%HOST_IP%|$host_ip|" \
@@ -83,12 +85,13 @@ sed -i \
     -e "s|%SSH_KEY_PATH%|$SSH_KEY_PATH|" \
     ./inventory
 
-echo "creating .env file..."
+echo "--- creating .env file..."
 
+touch ./files/.env
 cp ./files/.env.tmpl ./files/.env
 sed -i \
-    -e "s|%HOST_IP%|$host_ip|" \
-    ./.env
+    -e "s|%HOST_URL%|$HOST_URL|" \
+    ./files/.env
 
 echo ":):):):):):):):)"
 echo ":)   DONE!    :)"

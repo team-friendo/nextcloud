@@ -16,7 +16,7 @@ $ sudo ./bin/install-ansible
 
 ``` shell
 $ blackbox_decrypt_all_files
-$ set -a && source .env && set +a
+$ set -a && source files/.env.tmpl && set +a
 ```
 
 **Note:** assumes you have [blackbox](https://github.com/StackExchange/blackbox) installed.
